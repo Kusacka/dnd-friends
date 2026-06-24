@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Главная страница</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #1e1e1e;
+      color: #cccccc;
+    }
+
+    .app {
+      width: 100%;
+      height: 100vh;
+      display: grid;
+      grid-template-rows: 48px 1fr;
+    }
+
+    .topbar {
+      background: #2d2d30;
+      border-bottom: 1px solid #3c3c3c;
+    }
+
+    .layout {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      grid-template-columns: var(--left, 300px) 4px 1fr 4px var(--right, 300px);
+      min-height: 0;
+    }
+
+    .block {
+      height: 100%;
+      min-width: 0;
+      min-height: 0;
+      background: #252526;
+      border: none;
+      box-shadow: none;
+    }
+
+    .block--center {
+      background: #1e1e1e;
+    }
+
+    .divider {
+      cursor: col-resize;
+      background: #252526;
+      position: relative;
+    }
+
+    .divider::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 1px;
+      transform: translateX(-50%);
+      background: #313134;
+      opacity: 0.7;
+    }
+
+    .divider:hover {
+      background: #2a2a2d;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar"></header>
+    <main class="layout" id="layout">
+      <aside class="block" id="leftPane"></aside>
+      <div class="divider" id="leftDivider"></div>
+      <section class="block block--center"></section>
+      <div class="divider" id="rightDivider"></div>
+      <aside class="block" id="rightPane"></aside>
+    </main>
+  </div>
+
+  <script>
+    const layout = document.getElementById('layout');
+    const leftDivider = document.getElementById('leftDivider');
+    const rightDivider = document.getElementById('rightDivider');
+
+    let leftWidth = 300;
+    let rightWidth = 300;
+
+    function applySizes() {
+      layout.style.setProperty('--left', leftWidth + 'px');
+      layout.style.setProperty('--right', rightWidth + 'px');
+    }
+
+    function startDrag(side, e) {
+      e.preventDefault();
+      const startX = e.clientX;
+      const startLeft = leftWidth;
+      const startRight = rightWidth;
+
+      function onMove(ev) {
+        const dx = ev.clientX - startX;
+        const minSize = 150;
+        const maxSize = window.innerWidth - 150;
+
+        if (side === 'left') {
+          leftWidth = Math.max(minSize, Math.min(maxSize, startLeft + dx));
+        } else {
+          rightWidth = Math.max(minSize, Math.min(maxSize, startRight - dx));
+        }
+        applySizes();
+      }
+
+      function onUp() {
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+      }
+
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    }
+
+    leftDivider.addEventListener('mousedown', (e) => startDrag('left', e));
+    rightDivider.addEventListener('mousedown', (e) => startDrag('right', e));
+
+    applySizes();
+  </script>
+</body>
+</html>
